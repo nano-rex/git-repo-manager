@@ -1,6 +1,6 @@
-# git-manager
+# git-repo-manager
 
-`git-manager` is a set of small Bash utilities for managing hosted Git repositories from a local folder: create, link, rename, list, verify, delete, clone, pull, and browse branches/tags/commits/releases.
+`git-repo-manager` is a set of small Bash utilities for managing hosted Git repositories from a local folder: create, link, rename, list, verify, delete, clone, pull, and browse branches/tags/commits/releases.
 
 ## Scripts
 
