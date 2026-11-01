@@ -54,6 +54,22 @@ chmod +x push-github-repo.sh
 ./push-github-repo.sh delete myapp --yes
 ```
 
+Local git and browsing:
+
+```bash
+./push-github-repo.sh clone myapp /home/user/github/myapp
+./push-github-repo.sh clone octocat/Hello-World ~/src/hello test
+./push-github-repo.sh pull /home/user/github/myapp
+./push-github-repo.sh pull /home/user/github/myapp main --rebase
+./push-github-repo.sh fetch /home/user/github/myapp
+./push-github-repo.sh status /home/user/github/myapp
+./push-github-repo.sh branches /home/user/github/myapp   # local + remote-tracking refs
+./push-github-repo.sh branches myapp                     # queried from GitHub
+./push-github-repo.sh tags cli/cli
+./push-github-repo.sh log myapp 10 main
+./push-github-repo.sh releases cli/cli
+```
+
 ## Behavior
 
 - `create` ensures the repo exists and points the local directory at the GitHub remote
@@ -63,6 +79,13 @@ chmod +x push-github-repo.sh
 - `private` changes an existing repository to private
 - `verify` prints the repository identity, visibility, and URL
 - `delete` asks for confirmation unless `--yes` is passed
+- `clone` accepts a repo name (under `GITHUB_OWNER`), `owner/repo`, or any Git URL, plus an optional target dir and branch
+- `pull` is fast-forward only by default; pass `--rebase` to rebase local commits instead
+- `fetch` fetches `origin` with `--prune --tags`
+- `status` shows origin, last commit, ahead/behind, and changed files
+- `branches`, `tags`, and `log` read local refs when given a Git work tree path, otherwise they query the GitHub API (all pages)
+- `releases` lists GitHub releases with draft/prerelease flags
+- `clone`, `pull`, `fetch`, and the local forms of `branches`/`tags`/`log` work without a config file for public repos; the token is only handed to Git for `https://github.com/` remotes
 
 ## Notes
 
