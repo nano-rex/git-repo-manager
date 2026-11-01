@@ -9,6 +9,18 @@ There is one script per hosting provider, named `<provider>-manager.sh`:
 | Script | Provider | Status |
 |---|---|---|
 | `github-manager.sh` | GitHub | available |
+| `gitlab-manager.sh` | GitLab.com or self-managed GitLab | available |
+| `gitea-manager.sh` | Gitea.com or self-hosted Gitea | available |
+| `bitbucket-manager.sh` | Bitbucket | available |
+| `gogs-manager.sh` | Gogs | available |
+| `codeberg-manager.sh` | Codeberg | available |
+| `forgejo-manager.sh` | Forgejo | available |
+| `beanstalk-manager.sh` | Beanstalk | available |
+| `codebase-manager.sh` | Codebase | available |
+| `sourceforge-manager.sh` | SourceForge | available |
+| `launchpad-manager.sh` | Launchpad | available |
+| `aws-codecommit-manager.sh` | AWS CodeCommit | available |
+| `azure-devops-manager.sh` | Azure DevOps | available |
 
 `github-manager.sh` expects a GitHub personal access token with repo permissions and uses the GitHub REST API plus local `git`.
 
@@ -17,7 +29,8 @@ Each provider keeps its own config file in one shared folder:
 ```
 ~/.config/git-repo-manager/
 ├── github-config.env
-└── gitlab-config.env   # future
+├── gitlab-config.env
+└── gitea-config.env
 ```
 
 Set `GITHUB_REPO_CONFIG=/path/to/file` to use a different GitHub config file.
@@ -138,3 +151,22 @@ GITHUB_OWNER_TYPE="user"
 DEFAULT_VISIBILITY="public"
 DEFAULT_BRANCH="main"
 ```
+
+### GitLab and Gitea
+
+`gitlab-manager.sh` uses `GITLAB_REPO_CONFIG` and a GitLab personal/project
+access token. Its config supports `GITLAB_URL` (default `https://gitlab.com`),
+`GITLAB_OWNER`, and `GITLAB_OWNER_TYPE`.
+
+`gitea-manager.sh` uses `GITEA_REPO_CONFIG` and a Gitea API token. Its config
+supports `GITEA_URL` (default `https://gitea.com`), `GITEA_OWNER`, and
+`GITEA_OWNER_TYPE` (`user` or `org`). Run each script with `init-config` to
+create its provider-specific template.
+
+Additional provider scripts are named `bitbucket-manager.sh`, `gogs-manager.sh`,
+`codeberg-manager.sh`, `forgejo-manager.sh`, `beanstalk-manager.sh`,
+`codebase-manager.sh`, `sourceforge-manager.sh`, `launchpad-manager.sh`,
+`aws-codecommit-manager.sh`, and `azure-devops-manager.sh`. Each has its own
+`<PROVIDER>_REPO_CONFIG` environment override and `init-config` command.
+Provider-specific credentials and endpoint details belong in those generated
+config files; credentials are not placed in Git remote URLs.
