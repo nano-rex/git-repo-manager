@@ -85,6 +85,7 @@ Local git and browsing:
 - `status` shows origin, last commit, ahead/behind, and changed files
 - `branches`, `tags`, and `log` read local refs when given a Git work tree path, otherwise they query the GitHub API (all pages)
 - `releases` lists GitHub releases with draft/prerelease flags
+- Every command prints the underlying `git`/`curl` call (prefixed with `$`) to stderr before running it, so piped output stays clean; the token is shown as `***` and askpass auth as `GIT_ASKPASS=<token-helper>`
 - `clone`, `pull`, `fetch`, and the local forms of `branches`/`tags`/`log` work without a config file for public repos; the token is only handed to Git for `https://github.com/` remotes
 
 ## Notes

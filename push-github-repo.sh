@@ -27,6 +27,29 @@ die() {
   exit 1
 }
 
+# Print the command about to run, shell-quoted, to stderr so piped output
+# stays clean. Git calls that authenticate show the askpass helper too.
+show_cmd() {
+  local line="" arg
+
+  if [[ "$1" == "git" && -n "${ASKPASS_FILE}" ]]; then
+    line=" GIT_ASKPASS=<token-helper>"
+  fi
+  for arg in "$@"; do
+    if [[ "$arg" =~ ^[A-Za-z0-9_./:=@%+,-]+$ ]]; then
+      line+=" $arg"
+    else
+      line+=" '${arg//\'/\'\\\'\'}'"
+    fi
+  done
+  printf '$%s\n' "$line" >&2
+}
+
+run() {
+  show_cmd "$@"
+  "$@"
+}
+
 usage() {
   cat <<USAGE
 GitHub repo manager
@@ -179,6 +202,9 @@ gh_api() {
     args+=( -X "$method" -H "Content-Type: application/json" -d "$data" )
   fi
 
+  local -a shown=( curl -X "$method" -H 'Authorization: Bearer ***' )
+  [[ "$method" != "GET" ]] && shown+=( -d "$data" )
+  show_cmd "${shown[@]}" "$url"
   curl "${args[@]}" "$url"
 }
 
@@ -248,7 +274,7 @@ ensure_local_git_repo() {
   local branch="${2:-$DEFAULT_BRANCH}"
 
   if ! git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    git -C "$dir" init -b "$branch" >/dev/null
+    run git -C "$dir" init -b "$branch" >/dev/null
   fi
 }
 
@@ -259,9 +285,9 @@ set_origin_url() {
   local url="https://github.com/${owner}/${repo_name}.git"
 
   if git -C "$dir" remote get-url origin >/dev/null 2>&1; then
-    git -C "$dir" remote set-url origin "$url"
+    run git -C "$dir" remote set-url origin "$url"
   else
-    git -C "$dir" remote add origin "$url"
+    run git -C "$dir" remote add origin "$url"
   fi
 }
 
@@ -348,7 +374,7 @@ push_local_repo() {
   fi
 
   git_env
-  git -C "$dir" push -u origin "$branch"
+  run git -C "$dir" push -u origin "$branch"
 }
 
 create_local_repo() {
@@ -600,7 +626,7 @@ clone_repo() {
   [[ -n "$dir" ]] && args+=( "$dir" )
 
   git_env_for_url "$url"
-  git "${args[@]}"
+  run git "${args[@]}"
 }
 
 pull_repo() {
@@ -614,9 +640,9 @@ pull_repo() {
 
   git_env_for_url "$origin"
   if [[ -n "$branch" ]]; then
-    git -C "$dir" pull "$mode" origin "$branch"
+    run git -C "$dir" pull "$mode" origin "$branch"
   else
-    git -C "$dir" pull "$mode"
+    run git -C "$dir" pull "$mode"
   fi
 }
 
@@ -628,7 +654,7 @@ fetch_repo() {
   origin="$(git -C "$dir" remote get-url origin 2>/dev/null)" || die "${dir} has no origin remote"
 
   git_env_for_url "$origin"
-  git -C "$dir" fetch --prune --tags origin
+  run git -C "$dir" fetch --prune --tags origin
 }
 
 status_repo() {
@@ -639,7 +665,7 @@ status_repo() {
   origin="$(git -C "$dir" remote get-url origin 2>/dev/null || printf '(none)')"
   printf 'origin  %s\n' "$origin"
   printf 'last    %s\n' "$(git -C "$dir" log -1 --format='%h %cs %s' 2>/dev/null || printf '(no commits)')"
-  git -C "$dir" status --short --branch
+  run git -C "$dir" status --short --branch
 }
 
 list_branches() {
@@ -647,7 +673,7 @@ list_branches() {
   local spec default_branch
 
   if is_work_tree "$target"; then
-    git -C "$target" for-each-ref --sort=refname \
+    run git -C "$target" for-each-ref --sort=refname \
       --format='%(if)%(symref)%(then)%(else)%(HEAD) %(refname:short)%09%(objectname:short)%09%(committerdate:short)%09%(subject)%(end)' \
       refs/heads refs/remotes | awk 'NF' | column -t -s $'\t'
     return 0
@@ -677,7 +703,7 @@ list_tags() {
   local spec
 
   if is_work_tree "$target"; then
-    git -C "$target" for-each-ref --sort=-creatordate \
+    run git -C "$target" for-each-ref --sort=-creatordate \
       --format='%(refname:short)%09%(objectname:short)%09%(creatordate:short)%09%(subject)' \
       refs/tags | column -t -s $'\t'
     return 0
@@ -708,7 +734,7 @@ show_log() {
   if is_work_tree "$target"; then
     local -a args=( log --format='%h %cs %<(16,trunc)%an %s%d' -n "$count" )
     [[ -n "$branch" ]] && args+=( "$branch" )
-    git -C "$target" "${args[@]}"
+    run git -C "$target" "${args[@]}"
     return 0
   fi
 
