@@ -1,12 +1,16 @@
 # git-manager
 
-`git-manager` is a small Bash utility for creating, linking, renaming, listing, verifying, and deleting GitHub repositories from a local folder.
+`git-manager` is a set of small Bash utilities for managing hosted Git repositories from a local folder: create, link, rename, list, verify, delete, clone, pull, and browse branches/tags/commits/releases.
 
-## Script
+## Scripts
 
-- `push-github-repo.sh` is the single entry point
-- It expects a GitHub personal access token with repo permissions
-- It uses the GitHub REST API plus local `git`
+There is one script per hosting provider, named `<provider>-manager.sh`:
+
+| Script | Provider | Status |
+|---|---|---|
+| `github-manager.sh` | GitHub | available |
+
+`github-manager.sh` expects a GitHub personal access token with repo permissions and uses the GitHub REST API plus local `git`.
 
 ## Requirements
 
@@ -20,7 +24,7 @@
 1. Create the config file:
 
 ```bash
-./push-github-repo.sh init-config
+./github-manager.sh init-config
 ```
 
 2. Edit `~/.config/github-repo-manager/config.env` and set:
@@ -38,36 +42,36 @@ never written into the remote URL.
 3. Make sure the script is executable:
 
 ```bash
-chmod +x push-github-repo.sh
+chmod +x github-manager.sh
 ```
 
 ## Commands
 
 ```bash
-./push-github-repo.sh list
-./push-github-repo.sh create /home/user/github/myapp myapp private
-./push-github-repo.sh push /home/user/github/myapp
-./push-github-repo.sh rename /home/user/github/myapp myapp-new
-./push-github-repo.sh sync-name /home/user/github/myapp
-./push-github-repo.sh private myapp
-./push-github-repo.sh verify myapp
-./push-github-repo.sh delete myapp --yes
+./github-manager.sh list
+./github-manager.sh create /home/user/github/myapp myapp private
+./github-manager.sh push /home/user/github/myapp
+./github-manager.sh rename /home/user/github/myapp myapp-new
+./github-manager.sh sync-name /home/user/github/myapp
+./github-manager.sh private myapp
+./github-manager.sh verify myapp
+./github-manager.sh delete myapp --yes
 ```
 
 Local git and browsing:
 
 ```bash
-./push-github-repo.sh clone myapp /home/user/github/myapp
-./push-github-repo.sh clone octocat/Hello-World ~/src/hello test
-./push-github-repo.sh pull /home/user/github/myapp
-./push-github-repo.sh pull /home/user/github/myapp main --rebase
-./push-github-repo.sh fetch /home/user/github/myapp
-./push-github-repo.sh status /home/user/github/myapp
-./push-github-repo.sh branches /home/user/github/myapp   # local + remote-tracking refs
-./push-github-repo.sh branches myapp                     # queried from GitHub
-./push-github-repo.sh tags cli/cli
-./push-github-repo.sh log myapp 10 main
-./push-github-repo.sh releases cli/cli
+./github-manager.sh clone myapp /home/user/github/myapp
+./github-manager.sh clone octocat/Hello-World ~/src/hello test
+./github-manager.sh pull /home/user/github/myapp
+./github-manager.sh pull /home/user/github/myapp main --rebase
+./github-manager.sh fetch /home/user/github/myapp
+./github-manager.sh status /home/user/github/myapp
+./github-manager.sh branches /home/user/github/myapp   # local + remote-tracking refs
+./github-manager.sh branches myapp                     # queried from GitHub
+./github-manager.sh tags cli/cli
+./github-manager.sh log myapp 10 main
+./github-manager.sh releases cli/cli
 ```
 
 ## Behavior
