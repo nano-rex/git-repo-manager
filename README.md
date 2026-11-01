@@ -12,6 +12,18 @@ There is one script per hosting provider, named `<provider>-manager.sh`:
 
 `github-manager.sh` expects a GitHub personal access token with repo permissions and uses the GitHub REST API plus local `git`.
 
+Each provider keeps its own config file in one shared folder:
+
+```
+~/.config/git-repo-manager/
+├── github-config.env
+└── gitlab-config.env   # future
+```
+
+Set `GITHUB_REPO_CONFIG=/path/to/file` to use a different GitHub config file.
+The old `~/.config/github-repo-manager/config.env` is still read (with a note)
+until it is moved.
+
 ## Requirements
 
 - `bash`
@@ -27,7 +39,7 @@ There is one script per hosting provider, named `<provider>-manager.sh`:
 ./github-manager.sh init-config
 ```
 
-2. Edit `~/.config/github-repo-manager/config.env` and set:
+2. Edit `~/.config/git-repo-manager/github-config.env` and set:
 
 - `GITHUB_TOKEN`
 - `GITHUB_OWNER`

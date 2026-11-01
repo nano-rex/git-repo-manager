@@ -2,7 +2,8 @@
 set -euo pipefail
 
 SCRIPT_NAME="${0##*/}"
-CONFIG_FILE="${GITHUB_REPO_CONFIG:-$HOME/.config/github-repo-manager/config.env}"
+CONFIG_FILE="${GITHUB_REPO_CONFIG:-$HOME/.config/git-repo-manager/github-config.env}"
+LEGACY_CONFIG_FILE="$HOME/.config/github-repo-manager/config.env"
 DEFAULT_BRANCH_FALLBACK="main"
 ASSUME_YES=0
 ASKPASS_FILE=""
@@ -56,7 +57,8 @@ GitHub repo manager
 
 Config:
   init-config [path]      Write a config template and exit.
-  Config file defaults to ~/.config/github-repo-manager/config.env
+  Config file defaults to ~/.config/git-repo-manager/github-config.env
+  (override with GITHUB_REPO_CONFIG=/path/to/file)
 
 Commands:
   list                    List repos for the configured owner.
@@ -135,7 +137,16 @@ CFG
   printf 'Wrote config template to %s\n' "$path"
 }
 
+# Fall back to the pre-rename config location until it has been moved.
+use_legacy_config_if_needed() {
+  if [[ -z "${GITHUB_REPO_CONFIG:-}" && ! -f "$CONFIG_FILE" && -f "$LEGACY_CONFIG_FILE" ]]; then
+    err "Note: using legacy config $LEGACY_CONFIG_FILE; move it to $CONFIG_FILE"
+    CONFIG_FILE="$LEGACY_CONFIG_FILE"
+  fi
+}
+
 load_config() {
+  use_legacy_config_if_needed
   [[ -f "$CONFIG_FILE" ]] || die "Missing config: $CONFIG_FILE. Run '$SCRIPT_NAME init-config'."
   # shellcheck disable=SC1090
   source "$CONFIG_FILE"
@@ -528,6 +539,7 @@ PY
 # Like load_config, but a missing config or token is fine: public repos and
 # SSH remotes work without one.
 try_load_config() {
+  use_legacy_config_if_needed
   if [[ -f "$CONFIG_FILE" ]]; then
     # shellcheck disable=SC1090
     source "$CONFIG_FILE"
